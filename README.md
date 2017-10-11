@@ -19,10 +19,10 @@ API
 **Parameters**
 - **fd**: `Integer` file descriptor, must be open.
 - **code**: `Integer` Device specific control code.
-- **input**: `Buffer` Input data to send to device *optional*
-- **outBufSize**: `Integer` Size of output buffer to allocate *optional*
-- **cb**: `Function` Callback to be called after operation finish *optional*
-Signature is usual `function (err, data)` where **err** is instance of `Error` and **data** is `Buffer`
+- **input** *optional*: `Buffer` Input data to send to device
+- **outBufSize** *optional*: `Integer` Size of output buffer to allocate
+- **cb** *optional*: `Function` Callback to be called after operation finish
+Signature is `function (err, data)` where **err** is instance of `Error` and **data** is `Buffer`
 
 **Returns**: `Buffer` Allocated buffer of **outBufSize** size with data returned by device or undefined if **cb** is passed
 
