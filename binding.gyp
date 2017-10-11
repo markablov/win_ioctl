@@ -2,7 +2,7 @@
     'targets':
     [
         {
-            'target_name': 'win-ioctl',
+            'target_name': 'win_ioctl',
             'sources': ['src/main.cc' ],
             'include_dirs':
 	        [

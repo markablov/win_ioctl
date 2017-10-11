@@ -36,11 +36,11 @@ Get compression status of file
 ```
 const fs = require('fs');
 const path = require('path');
-const win_ioctl = require('win-ioctl');
+const win_ioctl = require('win_ioctl');
 
 const FSCTL_GET_COMPRESSION = 0x0009003C;
 
-const compressions =
+const comp_names =
 {
     0: 'COMPRESSION_FORMAT_NONE',
     1: 'COMPRESSION_FORMAT_DEFAULT',
@@ -57,7 +57,7 @@ fs.open(filename, 'r+', (err, fd) =>
         return;
     }
     let comp = win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2);
-    console.log('Compression: ' + compressions[comp.readUInt16LE(0)]);
+    console.log('Compression: ' + comp_names[comp.readUInt16LE(0)]);
     fs.close(fd, ()=>{});
 });
 
@@ -68,11 +68,11 @@ Async variant:
 ```
 const fs = require('fs');
 const path = require('path');
-const win_ioctl = require('win-ioctl');
+const win_ioctl = require('win_ioctl');
 
 const FSCTL_GET_COMPRESSION = 0x0009003C;
 
-const compressions =
+const comp_names =
 {
     0: 'COMPRESSION_FORMAT_NONE',
     1: 'COMPRESSION_FORMAT_DEFAULT',
@@ -93,7 +93,7 @@ fs.open(filename, 'r+', (err, fd) =>
         if (err)
             console.log(err);
         else
-            console.log('Compression: ' + compressions[data.readUInt16LE(0)]);
+            console.log('Compression: ' + comp_names[data.readUInt16LE(0)]);
         fs.close(fd, ()=>{});
     });
 });
