@@ -69,7 +69,7 @@ public:
 			else
 			{
 				m_errno = -1;
-				m_err = "Unknown error";
+				m_err = "Unknown error " + std::to_string(err);
 			}
 		}
 	}
