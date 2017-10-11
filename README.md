@@ -62,3 +62,40 @@ fs.open(filename, 'r+', (err, fd) =>
 });
 
 ```
+
+Async variant:
+
+```
+const fs = require('fs');
+const path = require('path');
+const win_ioctl = require('win-ioctl');
+
+const FSCTL_GET_COMPRESSION = 0x0009003C;
+
+const compressions =
+{
+    0: 'COMPRESSION_FORMAT_NONE',
+    1: 'COMPRESSION_FORMAT_DEFAULT',
+    2: 'COMPRESSION_FORMAT_LZNT1',
+};
+
+let filename = path.resolve(__filename);
+console.log(`Get compression for ${filename}`);
+fs.open(filename, 'r+', (err, fd) =>
+{
+    if (err)
+    {
+        console.log('Error: '+err);
+        return;
+    }
+    win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2, (err, data) =>
+    {
+        if (err)
+            console.log(err);
+        else
+            console.log('Compression: ' + compressions[data.readUInt16LE(0)]);
+        fs.close(fd, ()=>{});
+    });
+});
+
+```
