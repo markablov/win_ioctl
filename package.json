@@ -1,0 +1,20 @@
+{
+  "name": "win_ioctl",
+  "version": "0.0.1",
+  "description": "DeviceIoControl (ioctl) binding for Windows",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com"
+  },
+  "keywords": [
+    "ioctl",
+    "windows",
+    "deviceiocontrol"
+  ],
+  "author": "Mark Ablovatskii (mark.ablov@gmail.com)",
+  "license": "ISC",
+  "dependencies": {
+    "nan": "^2.7.0"
+  }
+}
