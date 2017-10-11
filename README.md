@@ -88,12 +88,12 @@ fs.open(filename, 'r+', (err, fd) =>
         console.log('Error: '+err);
         return;
     }
-    win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2, (err, data) =>
+    win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2, (err, d) =>
     {
         if (err)
             console.log(err);
         else
-            console.log('Compression: ' + comp_names[data.readUInt16LE(0)]);
+            console.log('Compression: ' + comp_names[d.readUInt16LE(0)]);
         fs.close(fd, ()=>{});
     });
 });
