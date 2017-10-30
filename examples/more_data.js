@@ -24,7 +24,7 @@ fs.open(filename, 'r+', (err, fd) =>
             {
                 let structSize = data.readUInt32LE(4);
                 let fullData = win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, os.cpus().length * structSize);
-                console.log('File has been read '+data.readUInt32LE(8)+' times');
+                console.log('File has been read '+fullData.readUInt32LE(8)+' times');
             } else
                 console.log('Error: '+err.message);
         } else
