@@ -31,7 +31,7 @@ Signature is `function (err, data)` where **err** is instance of `Error` and **d
 Examples
 --------
 
-Get compression status of file
+### Get compression status of file
 ```
 const comp_names =
 {
@@ -44,7 +44,7 @@ let comp = win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2);
 console.log('Compression: ' + comp_names[comp.readUInt16LE(0)]);
 ```
 
-Async variant:
+### Async variant
 ```
 const comp_names =
 {
@@ -57,7 +57,7 @@ win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2, (err, d) =>
     console.log(err ? err : 'Compression: ' + comp_names[d.readUInt16LE(0)]));
 ```
 
-Read variable-length data in case of ERR_MORE_DATA driver return:
+### Read variable-length data in case of ERR_MORE_DATA driver return:
 ```
 win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, SIZE_OF_FILESYSTEM_STATISTICS, (err, data) =>
 {
