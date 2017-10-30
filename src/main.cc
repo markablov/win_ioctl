@@ -58,8 +58,6 @@ public:
 		}
 		if (!DeviceIoControl(handle, code, buffer, bufferSize, m_out, outBufferSize, &m_outLen, nullptr))
 		{
-			if (m_out)
-				free(m_out);
 			unsigned int err = GetLastError();
 			if (err == ERROR_INSUFFICIENT_BUFFER || err == ERROR_MORE_DATA)
 			{
@@ -71,6 +69,8 @@ public:
 				m_errno = -1;
 				m_err = "Unknown error " + std::to_string(err);
 			}
+			if (!m_outLen && m_out)
+				free(m_out);
 		}
 	}
 
@@ -110,10 +110,13 @@ public:
 		Nan::HandleScope scope;
 
 		int err = m_caller.errorCode();
-		Local<Value> argv[] = { err > 0 ? Nan::ErrnoException(err, "win_ioctl", m_caller.errorMsg(), nullptr) : Nan::Error(m_caller.errorMsg()) };
-		callback->Call(1, argv);
+		Local<Value> argv[2] = {err >= 0 ? Nan::ErrnoException(err, "win_ioctl", m_caller.errorMsg(), nullptr) : Nan::Error(m_caller.errorMsg())};
+		if (m_caller.outLength())
+			argv[1] = Nan::NewBuffer((char *)m_caller.out(), m_caller.outLength()).ToLocalChecked();
+		else
+			argv[1] = Nan::Null();
+		callback->Call(2, argv);
 	}
-
 private:
 	HANDLE m_handle;
 	unsigned int m_code;
