@@ -32,14 +32,7 @@ Examples
 --------
 
 Get compression status of file
-
 ```
-const fs = require('fs');
-const path = require('path');
-const win_ioctl = require('win_ioctl');
-
-const FSCTL_GET_COMPRESSION = 0x0009003C;
-
 const comp_names =
 {
     0: 'COMPRESSION_FORMAT_NONE',
@@ -47,31 +40,12 @@ const comp_names =
     2: 'COMPRESSION_FORMAT_LZNT1',
 };
 
-let filename = path.resolve(__filename);
-console.log(`Get compression for ${filename}`);
-fs.open(filename, 'r+', (err, fd) =>
-{
-    if (err)
-    {
-        console.log('Error: '+err);
-        return;
-    }
-    let comp = win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2);
-    console.log('Compression: ' + comp_names[comp.readUInt16LE(0)]);
-    fs.close(fd, ()=>{});
-});
-
+let comp = win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2);
+console.log('Compression: ' + comp_names[comp.readUInt16LE(0)]);
 ```
 
 Async variant:
-
 ```
-const fs = require('fs');
-const path = require('path');
-const win_ioctl = require('win_ioctl');
-
-const FSCTL_GET_COMPRESSION = 0x0009003C;
-
 const comp_names =
 {
     0: 'COMPRESSION_FORMAT_NONE',
@@ -79,23 +53,24 @@ const comp_names =
     2: 'COMPRESSION_FORMAT_LZNT1',
 };
 
-let filename = path.resolve(__filename);
-console.log(`Get compression for ${filename}`);
-fs.open(filename, 'r+', (err, fd) =>
+win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2, (err, d) =>
+    console.log(err ? err : 'Compression: ' + comp_names[d.readUInt16LE(0)]));
+```
+
+Read variable-length data in case of ERR_MORE_DATA driver return:
+```
+win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, SIZE_OF_FILESYSTEM_STATISTICS, (err, data) =>
 {
     if (err)
     {
-        console.log('Error: '+err);
-        return;
-    }
-    win_ioctl(fd, FSCTL_GET_COMPRESSION, undefined, 2, (err, d) =>
-    {
-        if (err)
-            console.log(err);
-        else
-            console.log('Compression: ' + comp_names[d.readUInt16LE(0)]);
-        fs.close(fd, ()=>{});
-    });
+        if (err.code == 'ERANGE' && data)
+        {
+            let structSize = data.readUInt32LE(4);
+            let fullData = win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, os.cpus().length * structSize);
+            console.log('File has been read '+data.readUInt32LE(8)+' times');
+        } else
+            console.log('Error: '+err.message);
+    } else
+        console.log('Error: unexpected success of first request with small buffer!');
 });
-
 ```
