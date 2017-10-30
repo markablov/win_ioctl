@@ -65,8 +65,8 @@ win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, SIZE_OF_FILESYSTEM_STA
     {
         if (err.code == 'ERANGE' && data)
         {
-            let structSize = data.readUInt32LE(4);
-            let fullData = win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, os.cpus().length * structSize);
+            let structSize = data.readUInt32LE(4), fullSize = os.cpus().length * structSize;
+            let fullData = win_ioctl(fd, FSCTL_FILESYSTEM_GET_STATISTICS, undefined, fullSize);
             console.log('File has been read '+data.readUInt32LE(8)+' times');
         } else
             console.log('Error: '+err.message);
