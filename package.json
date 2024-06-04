@@ -11,11 +11,14 @@
     "windows",
     "deviceiocontrol"
   ],
+  "scripts": {
+    "prebuild": "npx rimraf build"
+  },
   "main": "index.js",
   "author": "Mark Ablovatskii (mark.ablov@gmail.com)",
   "license": "MIT",
   "dependencies": {
-    "bindings": "^1.3.0",
-    "nan": "^2.7.0"
+    "bindings": "^1.5.0",
+    "nan": "^2.19.0"
   }
 }
