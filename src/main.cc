@@ -102,7 +102,7 @@ public:
 			Nan::NewBuffer((char *)m_caller.out(), m_caller.outLength()).ToLocalChecked()
 		};
 
-		callback->Call(2, argv);
+		callback->Call(2, argv, async_resource);
 	}
 
 	void HandleErrorCallback()
@@ -115,7 +115,7 @@ public:
 			argv[1] = Nan::NewBuffer((char *)m_caller.out(), m_caller.outLength()).ToLocalChecked();
 		else
 			argv[1] = Nan::Null();
-		callback->Call(2, argv);
+		callback->Call(2, argv, async_resource);
 	}
 private:
 	HANDLE m_handle;
@@ -161,22 +161,26 @@ NAN_METHOD(win_ioctl)
 
 	if (!info[0]->IsInt32())
 		RETURN_ERROR("Argument 0 should be a file descriptor");
-	int fd = info[0]->Int32Value();
+	
+	Isolate* isolate = info.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
+	int fd = info[0]->Int32Value(context).FromJust();
+	
 	_set_invalid_parameter_handler(invalid_parameter_handler);
 	// use uv_get_osfhandle instead of _get_osfhandle coz of https://msdn.microsoft.com/en-us/library/ms235460.aspx
 	HANDLE handle = uv_get_osfhandle(fd);
 	if (handle < 0)
 		RETURN_ERROR("Argument 0 should be a file descriptor");
 
-	if (!info[1]->IsUint32())
+	if (!info[1]->Int32Value(context).FromJust())
 		RETURN_ERROR("Argument 1 should be an integer");
-	unsigned long code = info[1]->Uint32Value();
+	unsigned long code = info[1]->Uint32Value(context).FromJust();
 
 	void * buffer = nullptr;
 	size_t bufferSize = 0;
 	if (!info[2]->IsUndefined())
 	{
-		Local<Object> buf_obj = info[2]->ToObject();
+		Local<Object> buf_obj = info[2]->ToObject(context).ToLocalChecked();
 		if (!Buffer::HasInstance(buf_obj))
 			RETURN_ERROR("Argument 2 should be an instance of Buffer or undefined");
 		buffer = Buffer::Data(buf_obj);
@@ -188,7 +192,7 @@ NAN_METHOD(win_ioctl)
 	{
 		if (!info[3]->IsUint32())
 			RETURN_ERROR("Argument 3 should be an integer or undefined");
-		outBufferSize = info[3]->Uint32Value();
+		outBufferSize = info[3]->Uint32Value(context).FromJust();
 	}
 
 	if (callback)
@@ -210,8 +214,11 @@ NAN_METHOD(win_ioctl)
 
 void init(Local<Object> exports, Local<Object> module)
 {
-	// win_ioctl(int fd, uint code, Buffer input, int outBufSize, [Function cb])
-	module->Set(Nan::New("exports").ToLocalChecked(), Nan::New<FunctionTemplate>(win_ioctl)->GetFunction());
+    Isolate* isolate = exports->GetIsolate();
+    Local<Context> context = isolate->GetCurrentContext();
+	
+    // win_ioctl(int fd, uint code, Buffer input, int outBufSize, [Function cb])
+    module->Set(context, Nan::New("exports").ToLocalChecked(), Nan::New<FunctionTemplate>(win_ioctl)->GetFunction(context).ToLocalChecked());
 }
 
 NODE_MODULE(win_ioctl, init)
